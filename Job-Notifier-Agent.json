@@ -1,0 +1,265 @@
+{
+  "name": "Job-Notifier-Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        -64
+      ],
+      "id": "1a026b0c-be18-465c-bc2b-44f04ba98120",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://remoteok.com/api",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -512,
+        -64
+      ],
+      "id": "0ee7704c-5a57-4e1f-9ed7-7afe283cc96f",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({ json: item.json }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        -64
+      ],
+      "id": "8a778e19-93a2-4a44-8ae1-2fc1bd53b7d9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8d799123-87ce-45cb-ae90-0332b6bd1c2c",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Growth Marketer",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "897d1d30-4c35-4ea2-a111-83540514cbda",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Social Media Manager",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "4f1e9fbd-980b-4d63-b7f0-c7ead439c846",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Marketing Strategist",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "41345a78-b296-4681-a51f-19d6b8ea28ae",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Project Manager",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "0810c585-61b9-4d64-874f-c71e175db89a",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Content Creation",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "1e63b62b-2718-4a02-b1ed-2a9cb37e0e38",
+              "leftValue": "={{ $json.position }}",
+              "rightValue": "Frontend Developer",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -64
+      ],
+      "id": "c5979752-9030-44a1-9444-737c014f0a06",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "id": "fa7bacf7-4a53-421e-8823-2a5e5420d5dd",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "chatId": "6174993645",
+        "text": "=💼 *New Job Found!*\n\n*Title:*  {{ $json.position }}\n*Company:* {{$json[\"company\"]}}  \n📝 *Description:* {{$json[\"cleanDescription\"].slice(0, 300)}}...  \n🔗 *Apply here:* {{$json[\"url\"] || $json[\"apply_link\"]}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        -160
+      ],
+      "id": "36f27954-5daf-4ddb-a032-817ec7b9a406",
+      "name": "Send a text message",
+      "webhookId": "33a92b9c-c7db-4bc7-8e6c-202cb3fb6a63",
+      "credentials": {
+        "telegramApi": {
+          "id": "wPbmFA26eIIGu3hP",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const html = item.json.description || \"\";\n  const cleanText = html.replace(/<\\/?[^>]+(>|$)/g, \"\"); // remove HTML tags\n  item.json.cleanDescription = cleanText;\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -160
+      ],
+      "id": "72f64df1-e93c-4928-9810-3f02259959ca",
+      "name": "Code1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "04a81aef-dcdf-47ba-be7e-ee9437091309",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2a2b89182427fae64d557ae4e7e00af2d2c8b847e30af2d8b34c745717692d58"
+  },
+  "id": "hdy8LKFt8wBh2y5P",
+  "tags": []
+}
